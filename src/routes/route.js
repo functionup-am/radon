@@ -90,66 +90,135 @@ router.get('/films/:filmId',function (req,res){
     res.send(result); 
 });
 
+let players =
+   [
+       {
+           "name": "manish",
+           "dob": "1/1/1995",
+           "gender": "male",
+           "city": "jalandhar",
+           "sports": [
+               "swimming"
+           ]
+       },
+       {
+           "name": "gopal",
+           "dob": "1/09/1995",
+           "gender": "male",
+           "city": "delhi",
+           "sports": [
+               "soccer"
+           ]
+       },
+       {
+           "name": "lokesh",
+           "dob": "1/1/1990",
+           "gender": "male",
+           "city": "mumbai",
+           "sports": [
+               "soccer"
+           ]
+       },
+   ]
+
+
+   router.post('/players', function (req, res) {
+ 
+    //LOGIC WILL COME HERE
+    let players = []
+
+router.post('/players', function (req, res) {
+    
+    let newPlayer = req.body
+    let newPlayersName = newPlayer.name
+    let isNameRepeated = false
+
+    //let player = players.find(p => p.name == newPlayersName)
+
+    for(let i = 0; i < players.length; i++) {
+        if(players[i].name == newPlayersName) {
+            isNameRepeated = true;
+            break;
+        }
+    }
+
+    //undefined is same as false/ a falsy value
+    if (isNameRepeated) {
+        //Player exists
+        res.send("This player was already added!")
+    } else {
+        //New entry
+        players.push(newPlayer)
+        res.send(players)
+    }
+});
+        res.send(  { data: players , status: true }  )
+    }); 
+        
+module.exports = router;
+
+    
+    
 
 // // -write an api which gives the missing number in an array of integers starting from 1….e.g [1,2,3,5,6,7] : 4 is missing
- app.get("/sol1", function (req, res) {
-//     //logic : sum of numbers is n(n+1)/2..so get sum of all numbers in array. now take sum of numbers till last digit in the array
-    let arr= [1,2,3,5,6,7]
+//  app.get("/sol1", function (req, res) {
+// //     //logic : sum of numbers is n(n+1)/2..so get sum of all numbers in array. now take sum of numbers till last digit in the array
+//     let arr= [1,2,3,5,6,7]
   
-    let total = 0;
-    for (var i in arr) {
-        total += arr[i];
-    }
+//     let total = 0;
+//     for (var i in arr) {
+//         total += arr[i];
+//     }
   
-    let lastDigit= arr.pop()
-    let consecutiveSum= lastDigit * (lastDigit+1) / 2
-    let missingNumber= consecutiveSum - total
+//     let lastDigit= arr.pop()
+//     let consecutiveSum= lastDigit * (lastDigit+1) / 2
+//     let missingNumber= consecutiveSum - total
   
-    res.send(  { data: missingNumber  }  );
-  });
+//     res.send(  { data: missingNumber  }  );
+//   });
   
-    // -write an api which gives the missing number in an array of integers starting from anywhere….e.g [33, 34, 35, 37, 38]: 36 is missing
-  app.get("/sol2", function (req, res) {
-    //logic : sum of n consecutive numbers is [ n * (first + last) / 2  ]..so get sum of all numbers in array. now take sum of n consecutive numbers.. n would be length+1 as 1 number is missing
-    let arr= [33, 34, 35, 37, 38]
-    let len= arr.length
+//     // -write an api which gives the missing number in an array of integers starting from anywhere….e.g [33, 34, 35, 37, 38]: 36 is missing
+//   app.get("/sol2", function (req, res) {
+//     //logic : sum of n consecutive numbers is [ n * (first + last) / 2  ]..so get sum of all numbers in array. now take sum of n consecutive numbers.. n would be length+1 as 1 number is missing
+//     let arr= [33, 34, 35, 37, 38]
+//     let len= arr.length
   
-    let total = 0;
-    for (var i in arr) {
-        total += arr[i];
-    }
+//     let total = 0;
+//     for (var i in arr) {
+//         total += arr[i];
+//     }
   
-    let firstDigit= arr[0]
-    let lastDigit= arr.pop()
-    let consecutiveSum= (len + 1) * (firstDigit+ lastDigit ) / 2
-    let missingNumber= consecutiveSum - total
+//     let firstDigit= arr[0]
+//     let lastDigit= arr.pop()
+//     let consecutiveSum= (len + 1) * (firstDigit+ lastDigit ) / 2
+//     let missingNumber= consecutiveSum - total
    
-    res.send(  { data: missingNumber  }  );
- });
+//     res.send(  { data: missingNumber  }  );
+//  });
   
  
  
 
 
 
-router.get('/candidates', function(req, res){
-    console.log('Query paramters for this request are '+JSON.stringify(req.query))
-    let gender = req.query.gender
-    let state = req.query.state
-    let district = req.query.district
-    console.log('State is '+state)
-    console.log('Gender is '+gender)
-    console.log('District is '+district)
-    let candidates = ['Akash','Suman']
-    res.send(candidates)
-})
+// router.get('/candidates', function(req, res){
+//     console.log('Query paramters for this request are '+JSON.stringify(req.query))
+//     let gender = req.query.gender
+//     let state = req.query.state
+//     let district = req.query.district
+//     console.log('State is '+state)
+//     console.log('Gender is '+gender)
+//     console.log('District is '+district)
+//     let candidates = ['Akash','Suman']
+//     res.send(candidates)
+// })
 
-router.get('/candidates/:canidatesName', function(req, res){
-    console.log('The request objects is '+ JSON.stringify(req.params))
-    console.log('Candidates name is '+req.params.canidatesName)
-    res.send('Done')
-})
+// router.get('/candidates/:canidatesName', function(req, res){
+//     console.log('The request objects is '+ JSON.stringify(req.params))
+//     console.log('Candidates name is '+req.params.canidatesName)
+//     res.send('Done')
+// })
 
 
-module.exports = router;
+
 // // adding this comment for no reason
