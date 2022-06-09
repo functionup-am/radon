@@ -6,7 +6,7 @@ const bookModelSchema = new mongoose.Schema({
         },
         author_id:{
             type: Number,
-            required: String
+            required: true
         },
         prices: Number,
         ratings: Number
