@@ -1,14 +1,17 @@
 
 const mid1= function ( req, res, next) {
-    req.falana= "hi there. i am adding something new to the req object"
-    console.log("Hi I am a middleware named Mid1")
-    next()
+    if (req.headers.isfreeappuser==true);
+ else return  res.send ( {msg: "The request is missing a mandatory header"})
+ next()
 }
 
+
 const mid2= function ( req, res, next) {
-    console.log("Hi I am a middleware named Mid2")
+    if (req.headers.isfreeappuser==true);
+    else return  res.send ( {msg: "The request is missing a mandatory header"})
     next()
-}
+   }
+    
 
 const mid3= function ( req, res, next) {
     console.log("Hi I am a middleware named Mid3")
