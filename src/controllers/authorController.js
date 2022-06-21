@@ -1,6 +1,10 @@
 const authormodel = require('../models/authorModel')
 
 
+// ### Author APIs /authors
+// - Create an author - atleast 5 authors
+// - Create a author document from request body.
+
 let createauthor = async function (req, res) {
     try {
         let data = req.body

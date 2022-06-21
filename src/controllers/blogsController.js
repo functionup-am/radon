@@ -1,6 +1,14 @@
 const blogsmodel = require("../models/blogsModel");
 const authormodel = require("../models/authorModel");
 
+// ### POST /blogs
+// - Create a blog document from request body. Get authorId in request body only.
+// - Make sure the authorId is a valid authorId by checking the author exist in the authors collection.
+// - Return HTTP status 201 on a succesful blog creation. Also return the blog document. The response should be a JSON object like [this](#successful-response-structure) 
+// - Create atleast 5 blogs for each author
+
+// - Return HTTP status 400 for an invalid request with a response body
+
 const createBlogs = async function (req, res) {
   try {
     let data = req.body;
@@ -8,7 +16,7 @@ const createBlogs = async function (req, res) {
     if(!data.title)return res.status(400).send({status :false , msg:" Please Enter Title"})
     if(!data.body)return res.status(400).send({status :false , msg:" Please Enter Body"})
     if(!data.category)return res.status(400).send({status :false , msg:" Please Enter Category"})
-    if(!data.authorId)return res.status(400).send({status :false , msg:" Please Enter Author ID"})
+    //if(!data.authorId)return res.status(400).send({status :false , msg:" Please Enter Author ID"})
     
     if (Object.keys(data).length == 0)
       return res
@@ -33,19 +41,35 @@ const createBlogs = async function (req, res) {
   }
 };
 
+// ## GET /blogs
+// - Returns all blogs in the collection that aren't deleted and are published
+// - Return the HTTP status 200 if any documents are found. The response structure should be like [this](#successful-response-structure) 
+// - If no documents are found then return an HTTP status 404 with a response like [this](#error-response-structure) 
+// - Filter blogs list by applying filters. Query param can have any combination of below filters.
+//   - By author Id
+//   - By category
+//   - List of blogs that have a specific tag
+//   - List of blogs that have a specific subcategory
+
 const getBlogs = async function (req, res) {
   try {
     let conditions = req.query;
     console.log(conditions);
-    let blogs = await blogsmodel.find({$and:[conditions,{isDeleted:false}]} );
-    if (blogs.length == 0)
-      return res.status(404).send({ status: false, msg: "No documents found" });
+    let blogs = await blogsmodel.find({$and:[conditions,{isDeleted:false},{isPublished:true}]} );
+    if (blogs.length == 0) return res.status(404).send({ status: false, msg: "No documents found" });
     res.status(200).send({ status: true, data: blogs });
   } catch (error) {
     console.log(error);
     res.status(500).send({ status: false, msg: error.message });
   }
 };
+
+// ### PUT /blogs/:blogId
+// - Updates a blog by changing the its title, body, adding tags, adding a subcategory. (Assuming tag and subcategory received in body is need to be added)
+// - Updates a blog by changing its publish status i.e. adds publishedAt date and set published to true
+// - Check if the blogId exists (must have isDeleted false). If it doesn't, return an HTTP status 404 with a response body like [this](#error-response-structure)
+// - Return an HTTP status 200 if updated successfully with a body like [this](#successful-response-structure) 
+// - Also make sure in the response you return the updated blog document. 
 
 const putBlogs = async function (req, res) {
   try {
@@ -74,6 +98,10 @@ const putBlogs = async function (req, res) {
   }
 };
 
+// ### DELETE /blogs/:blogId
+// - Check if the blogId exists( and is not deleted). If it does, mark it deleted and return an HTTP status 200 without any response body.
+// - If the blog document doesn't exist then return an HTTP status of 404 with a body like [this](#error-response-structure) 
+
 const deleteBlogs = async function (req, res) {
   try {
     let blogId = req.params.blogId;
@@ -91,6 +119,12 @@ const deleteBlogs = async function (req, res) {
     res.status(500).send({ status: false, msg: error.message });
   }
 };
+
+// ### DELETE /blogs?queryParams
+// - Delete blog documents by category, authorid, tag name, subcategory name, unpublished
+// - If the blog document doesn't exist then return an HTTP status of 404 with a body
+
+
 const deleteBlogsByQuery= async function(req,res){
     try {
         let conditions = req.query;
