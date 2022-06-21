@@ -19,9 +19,13 @@ const createBlogs = async function (req, res) {
       return res.status(400).send({ status: false, msg: "Enter Author Id" });
 
     let checkAuthorId = await authormodel.findById(authorId);
-
+   
     if (!checkAuthorId)
       return res.status(404).send({ status: false, msg: "Author Not Found" });
+      if (data.isPublished == true) {
+        let date = Date.now();
+        data.publishedAt = date;
+      }
     let save = await blogsmodel.create(data);
     res.status(201).send({ status: true, data: save });
   } catch (error) {
