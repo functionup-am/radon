@@ -4,6 +4,12 @@ const authormodel = require("../models/authorModel");
 const createBlogs = async function (req, res) {
   try {
     let data = req.body;
+
+    if(!data.title)return res.status(400).send({status :false , msg:" Please Enter Title"})
+    if(!data.body)return res.status(400).send({status :false , msg:" Please Enter Body"})
+    if(!data.category)return res.status(400).send({status :false , msg:" Please Enter Category"})
+    if(!data.authorId)return res.status(400).send({status :false , msg:" Please Enter Author ID"})
+    
     if (Object.keys(data).length == 0)
       return res
         .status(400)
@@ -27,7 +33,7 @@ const getBlogs = async function (req, res) {
   try {
     let conditions = req.query;
     console.log(conditions);
-    let blogs = await blogsmodel.find(conditions);
+    let blogs = await blogsmodel.find({$and:[conditions,{isDeleted:false}]} );
     if (blogs.length == 0)
       return res.status(404).send({ status: false, msg: "No documents found" });
     res.status(200).send({ status: true, data: blogs });
