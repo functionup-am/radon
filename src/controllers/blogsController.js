@@ -21,11 +21,15 @@ const createBlogs = async function (req, res) {
     if(typeof data.category !== 'string') return res.status(400).send({ status: false, msg: "Please Enter String" });
 
     let authorId = req.body.authorId;
-    if (!authorId)return res.status(400).send({ status: false, msg: "Enter Author Id" });
+    // if(typeof data.authorId !== 'objectId') return res.status(400).send({ status: false, msg: "Please Enter objectId" });
 
+    if (!authorId)return res.status(400).send({ status: false, msg: "Enter Author Id" });
+         
     let checkAuthorId = await authormodel.findById(authorId);
 
     if (!checkAuthorId) return res.status(404).send({ status: false, msg: "Author Not Found" });
+    // if(typeof data.isPublished !== 'boolean') return res.status(400).send({ status: false, msg: "Please Enter True or False" });
+
     if (data.isPublished == true) {
       let date = Date.now();
       data.publishedAt = date;
@@ -33,6 +37,7 @@ const createBlogs = async function (req, res) {
     let save = await blogsmodel.create(data);
     res.status(201).send({ status: true, data: save });
   } catch (error) {
+    console.log(error)
     res.status(500).send({ status: false, msg: error.message });
   }
 };
@@ -48,18 +53,18 @@ const createBlogs = async function (req, res) {
 //   - List of blogs that have a specific subcategory
 
 const getBlogs = async function (req, res) {
-  try {
+  try {     
     let conditions = req.query;
-    if (Object.keys(conditions).length == 0)
-      return res
-        .status(400)
-        .send({ status: false, msg: "Body cannot be empty" });
+    // if (Object.keys(conditions).length == 0) return res.status(400).send({ status: false, msg: "Body cannot be empty" });
+   
+    // if (!conditions.category)return res.status(400).send({ status: false, msg: "Please Enter Category" });
+    //  if(typeof conditions.category !== 'string') return res.status(400).send({ status: false, msg: "Please Enter String" });
+    // if (!conditions.authorId)return res.status(400).send({ status: false, msg: "Enter Author Id" });
     let blogs = await blogsmodel.find({
       $and: [conditions, { isDeleted: false }, { isPublished: true }],
     });
-    if (blogs.length == 0)
-      return res.status(404).send({ status: false, msg: "No Blogs found" });
-    res.status(200).send({ status: true, data: blogs });
+    if (blogs.length == 0) return res.status(404).send({ status: false, msg: "No Blogs found" });
+         res.status(200).send({ status: true, data: blogs });
   } catch (error) {
     console.log(error);
     res.status(500).send({ status: false, msg: error.message });
@@ -76,16 +81,22 @@ const getBlogs = async function (req, res) {
 const putBlogs = async function (req, res) {
   try {
     let blogId = req.params.blogId;
-    if (Object.keys(blogId).length == 0)
-      return res
-        .status(400)
-        .send({ status: false, msg: "Body cannot be empty" });
+    if (Object.keys(blogId).length == 0)  return res.status(400).send({ status: false, msg: "Body cannot be empty" });
+
     let blog = await blogsmodel.findById(blogId);
     if (!blog) {
       return res.status(404).send({ status: false, msg: "Blog Not Found" });
     }
     let blogData = req.body;
+    // if (!blogData.title)return res.status(400).send({ status: false, msg: "Please Enter Title" });
+    // if(typeof blogData.title !== 'string') return res.status(400).send({ status: false, msg: " Please Enter String" });
+    // if (!blogData.body)return res.status(400).send({ status: false, msg: "Please Enter Body" });
+    // if(typeof blogData.body !== 'string') return res.status(400).send({ status: false, msg: " Please Enter String" });
+    // if (!blogData.category)return res.status(400).send({ status: false, msg: "Please Enter Category" });
+    // if(typeof blogData.category !== 'string') return res.status(400).send({ status: false, msg: "Please Enter String" });
+
     let updatedBlog = await blogsmodel.findOneAndUpdate(
+
       { _id: blogId, isDeleted: false }, //Checks weather document is deleted or not { _id: blogId },
       {
         title: blogData.title,
@@ -111,10 +122,7 @@ const putBlogs = async function (req, res) {
 const deleteBlogs = async function (req, res) {
   try {
     let blogId = req.params.blogId;
-    if (Object.keys(blogId).length == 0)
-      return res
-        .status(400)
-        .send({ status: false, msg: "Body cannot be empty" });
+    if (Object.keys(blogId).length == 0) return res.status(400).send({ status: false, msg: "Body cannot be empty" });
     let blog = await blogsmodel.findOneAndUpdate(
       { _id: blogId, isDeleted: false },
       { $set: { isDeleted: true, deletedAt: Date.now() } },
@@ -134,40 +142,28 @@ const deleteBlogs = async function (req, res) {
 // - Delete blog documents by category, authorid, tag name, subcategory name, unpublished
 // - If the blog document doesn't exist then return an HTTP status of 404 with a body
 
-const deleteBlogsByQuery = async function (req, res) {
+const deleteBlogsByQuery = async function (req, res) {   
   try {
     let conditions = req.query;
-    if (Object.keys(conditions).length == 0)
-      return res
-        .status(400)
-        .send({ status: false, msg: "Body cannot be empty" });
-    let deleteBlogs = await blogsmodel.updateMany(
-      {
-        $and: [
-          {
-            $or: [
-              { category: conditions.category },
-              { authorId: conditions.authorId },
-              { tags: { $all: conditions.tags } },
-              { subcategory: { $all: conditions.subcategory } },
-            ],
-          },
-          { isDeleted: false },
-          { isPublished: true },
-        ],
-      },
-      { $set: { isDeleted: true, deletedAt: Date.now() } }
-    );
-    //let deleteBlogs= await blogsmodel.updateMany({$and:[{isDeleted:true}]},{$set:{isDeleted:false,isPublished:true}})
+    // if (Object.keys(conditions).length == 0)  return res.status(400).send({ status: false, msg: "Body cannot be empty" });
+    // if (!conditions.category)return res.status(400).send({ status: false, msg: "Please Enter Category" });
+    // if(typeof conditions.category !== 'string') return res.status(400).send({ status: false, msg: "Please Enter String" });
+    // if (!conditions.authorId)return res.status(400).send({ status: false, msg: "Enter Author Id" });
+       let deleteBlogs= await blogsmodel.updateMany({isDeleted:false, $or:[{authorId: conditions.authorId },
+        {category: conditions.category},{tags: conditions.tags},{subcategory: conditions.subcategory},
+        {isPublished: conditions.isPublished}]},
+        {$set:{isDeleted:true,deletedAt:Date.now()}},{new:true})
+
+    // let deleteBlogs= await blogsmodel.updateMany({$and:[{isDeleted:true}]},{$set:{isDeleted:false,isPublished:true}})
     console.log(deleteBlogs);
     if (deleteBlogs.matchedCount == 0) {
       return res.status(404).send({ status: false, msg: "Blog Not Found" });
     }
 
     res.status(200).send({ status: true, msg: "Document is deleted" });
-  } catch (error) {
+  } catch (error) {   
     console.log(error);
-    res.status(500).send({ status: false, msg: error.message });
+    res.status(500).send({ status: false, msg: error.message });                
   }
 };
 
