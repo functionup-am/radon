@@ -36,8 +36,9 @@ const createBlogs = async function (req, res) {
 
     if (data.isPublished) {
       if(typeof data.isPublished !== "boolean")return res.status(400).send({ status: false, msg: "Please mention isPublished as True or False" });
+      if(data.isPublished== true){
       let date = Date.now();
-      data.publishedAt = date;
+      data.publishedAt = date;}
     }
     let save = await blogsmodel.create(data);
     res.status(201).send({ status: true, data: save });
@@ -166,7 +167,7 @@ const deleteBlogsByQuery = async function (req, res) {
       }
       if(conditions.tags) filters.tags={$all:conditions.tags};
       if(conditions.subcategory) filters.subcategory={$all:conditions.subcategory};
-      if(conditions.isPublished) filters.isPublished=true;
+      if(conditions.isPublished) filters.isPublished=false;
 
     console.log(filters)
     let deleteBlogs = await blogsmodel.updateMany(filters,{ $set: { isDeleted: true, deletedAt: Date.now()}});
