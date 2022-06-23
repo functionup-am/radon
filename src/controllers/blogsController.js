@@ -1,6 +1,7 @@
 const blogsmodel = require("../models/blogsModel");
 const authormodel = require("../models/authorModel");
 const mongoose = require("mongoose");
+const jwt = require("jsonwebtoken");
 
 // ### POST /blogs
 // - Create a blog document from request body. Get authorId in request body only.
@@ -88,7 +89,7 @@ const getBlogs = async function (req, res) {
 
 const putBlogs = async function (req, res) {
   try {
-    let blogId = req.params.blogId;
+    let blogId = req.blogId;
     if (!mongoose.isValidObjectId(blogId))return res.status(400).send({ status: false, msg: "Please enter blogID as a valid ObjectId" });
 
     let blog = await blogsmodel.findById(blogId);
@@ -113,6 +114,9 @@ const putBlogs = async function (req, res) {
       },
       { new: true }
     );
+
+    if(!updatedBlog) return res.status(404).send({status:false,msg:"No blogs found"})
+
     res.status(200).send({ status: true, data: updatedBlog });
   } catch (error) {
     console.log(error);
@@ -127,7 +131,7 @@ const putBlogs = async function (req, res) {
 const deleteBlogs = async function (req, res) {
   try {
 
-    let blogId = req.params.blogId;
+    let blogId = req.blogId;
     if (!mongoose.isValidObjectId(blogId))return res.status(400).send({ status: false, msg: "Please enter blogID as a valid ObjectId" });
     
     let blog = await blogsmodel.findOneAndUpdate(
@@ -151,12 +155,13 @@ const deleteBlogs = async function (req, res) {
 
 const deleteBlogsByQuery = async function (req, res) {
   try {
+    
     let conditions = req.query;
     if (Object.keys(conditions).length == 0)  return res.status(400).send({ status: false, msg: "Query Params cannot be empty" });
-
     let filters = {
       isDeleted:false
     }
+    filters.authorId= req.authorId
       if(conditions.authorId) {
         if (!mongoose.isValidObjectId(conditions.authorId))return res.status(400).send({ status: false, msg: "Please Enter authorID as valid ObjectId" }); 
         filters.authorId=conditions.authorId       
@@ -170,8 +175,8 @@ const deleteBlogsByQuery = async function (req, res) {
       if(conditions.isPublished) filters.isPublished=false;
 
     console.log(filters)
-    let deleteBlogs = await blogsmodel.updateMany(filters,{ $set: { isDeleted: true, deletedAt: Date.now()}});
-
+     
+    let deleteBlogs = await blogsmodel.updateMany(filters,{ $set: { isDeleted: true, deletedAt: Date.now()}});   
     //let deleteBlogs= await blogsmodel.updateMany({$and:[{isDeleted:true}]},{$set:{isDeleted:false,isPublished:true}})
     console.log(deleteBlogs);
     if (deleteBlogs.matchedCount == 0) {

@@ -1,5 +1,6 @@
 const authormodel = require("../models/authorModel");
 const validator = require("validator");
+const jwt =require('jsonwebtoken')
 
 // ### Author APIs /authors
 // - Create an author - atleast 5 authors
@@ -39,4 +40,20 @@ const createauthor = async function (req, res) {
   }
 };
 
-module.exports = { createauthor };
+const loginAuthor= async function(req,res){
+    let data = req.body
+    let userEmail= data.email
+    let userPassword= data.password
+
+    let checkCred= await authormodel.findOne({email: userEmail,password:userPassword})
+    if(!checkCred) return res.status(400).send({status:false, msg:"Email or password is incorrect"})
+
+    let token= jwt.sign({
+      authorId: checkCred._id.toString(),
+      batch:"Radon"
+    }, "project1-AADI");
+    res.setHeader("x-api-key",token)
+    res.status(201).send({status:true,data: token})
+}
+
+module.exports = { createauthor,loginAuthor };
