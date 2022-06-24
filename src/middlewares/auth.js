@@ -5,8 +5,8 @@ const mongoose = require("mongoose");
 const authentication = async function (req, res, next) {
   try {
     let token = req.headers["x-api-key"];
-    if (!token)return res.status(400).send({ status: false, msg: "Enter token in header" });   
-
+    if (!token)return res.status(400).send({ status: false, msg: "Enter token in header" });
+    
     let decodedToken = jwt.verify(token,"project1-AADI",function(err){
         if(err){
           return res.status(400).send({ status: false, msg: "Token is Invalid"});
@@ -24,11 +24,11 @@ const authorization = async function (req, res, next) {
   try {
     let token = req.headers["x-api-key"];
 
-    if (!token)return res.status(400).send({ status: false, msg: "Enter token in header" });
+    //if (!token)return res.status(400).send({status: false, msg: "Enter token in header"});
 
     let decodedToken = jwt.verify(token, "project1-AADI");
 
-    if (!decodedToken)return res.status(404).send({ status: false, msg: "Token not found" });
+    //if (!decodedToken)return res.status(404).send({status: false, msg: "Token not found"});
 
     let dataParams = req.params;
     let dataQuery = req.query;

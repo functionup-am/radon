@@ -172,7 +172,7 @@ const deleteBlogsByQuery = async function (req, res) {
       }
       if(conditions.tags) filters.tags={$all:conditions.tags};
       if(conditions.subcategory) filters.subcategory={$all:conditions.subcategory};
-      if(conditions.isPublished) filters.isPublished=false;
+      if(conditions.isPublished) filters.isPublished=false; // add alidation for if isPublished true
 
     console.log(filters)
      

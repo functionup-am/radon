@@ -41,6 +41,7 @@ const createauthor = async function (req, res) {
 };
 
 const loginAuthor= async function(req,res){
+  try{
     let data = req.body
     let userEmail= data.email
     let userPassword= data.password
@@ -53,7 +54,10 @@ const loginAuthor= async function(req,res){
       batch:"Radon"
     }, "project1-AADI");
     res.setHeader("x-api-key",token)
-    res.status(201).send({status:true,data: token})          
+    res.status(201).send({status:true,data: token})
+  }catch (error) {
+  res.status(500).send({ status: false, msg: error.message});
+  }
 }
 
 module.exports = { createauthor,loginAuthor };
