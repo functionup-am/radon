@@ -5,15 +5,15 @@ const mongoose = require("mongoose");
 const authentication = async function (req, res, next) {
   try {
     let token = req.headers["x-api-key"];
-    if (!token)return res.status(400).send({ status: false, msg: "Enter token in header" });
+    if (!token)return res.status(400).send({ status: false, msg: "Enter token in header" });   
 
-    let decodedToken = jwt.verify(token,"project1-AADI",function(err,data){
+    let decodedToken = jwt.verify(token,"project1-AADI",function(err){
         if(err){
           return res.status(400).send({ status: false, msg: "Token is Invalid"});
         }else {
            next()
         }});
-    //console.log(decodedToken)
+    console.log(decodedToken)
 
   } catch (error) {
     res.status(500).send({ status: false, msg: error.message });
@@ -42,7 +42,7 @@ const authorization = async function (req, res, next) {
     let authorBlog = await blogsmodel.find({$all:dataQuery}).select({ authorId: 1, _id: 0 });
     // console.log(dataQuery)
     // console.log(authorBlog)
-    let idOfAuthor = authorBlog.map(function (element) {
+    let idOfAuthor = authorBlog.map(function (element) {  
       return element.authorId.toString();
     });
     if (idOfAuthor.includes(decodedToken.authorId)) {

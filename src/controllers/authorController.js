@@ -53,7 +53,7 @@ const loginAuthor= async function(req,res){
       batch:"Radon"
     }, "project1-AADI");
     res.setHeader("x-api-key",token)
-    res.status(201).send({status:true,data: token})
+    res.status(201).send({status:true,data: token})          
 }
 
 module.exports = { createauthor,loginAuthor };

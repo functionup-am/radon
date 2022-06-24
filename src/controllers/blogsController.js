@@ -189,10 +189,4 @@ const deleteBlogsByQuery = async function (req, res) {
   }
 };
 
-module.exports = {
-  createBlogs,
-  getBlogs,
-  putBlogs,
-  deleteBlogs,
-  deleteBlogsByQuery,
-};
+module.exports = {createBlogs, getBlogs, putBlogs, deleteBlogs, deleteBlogsByQuery}
