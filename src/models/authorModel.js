@@ -1,8 +1,8 @@
 const mongoose = require("mongoose");
 //Schema
 const AuthorSchema = new mongoose.Schema({
-  fname: { type: String, required: true },
-  lname: { type: String, required: true },
+  fname: { type: String, unique: true, required: true },
+  lname: { type: String, unique: true, required: true },
   title: {
     type: String,
     required: true,
