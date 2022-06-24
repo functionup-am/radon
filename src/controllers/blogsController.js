@@ -13,28 +13,34 @@ const jwt = require("jsonwebtoken");
 const createBlogs = async function (req, res) {
   try {
     let data = req.body;
+    //Checks whether Body is empty or not
     if (Object.keys(data).length == 0)return res.status(400).send({ status: false, msg: "Body cannot be empty" });
-
+    // Checks if title is empty or entered as a string or contains valid Title
     if (!data.title)return res.status(400).send({ status: false, msg: "Please Enter Title" });
     if (typeof data.title !== "string")return res.status(400).send({ status: false, msg: " Please enter title as a String" });
-
+    let validTitle =  /^\w[a-zA-Z0-9.]*$/
+    data.title = data.title.trim();
+    if (!validTitle.test(data.title)) return res.status(400).send({ status: false, msg: "The Title cannot be empty"})
+  // Checks if Body is empty or entered as a string
     if (!data.body)return res.status(400).send({ status: false, msg: "Please Enter Body" });
     if (typeof data.body !== "string")return res.status(400).send({ status: false, msg: " Please enter body as a String" });
-
+    data.body = data.body.trim();
+    if (data.body.length ==0) return res.status(400).send({ status: false, msg: "The Body cannot be empty"})
+    // Checks if category is empty or entered as a string or contains valid Category
     if (!data.category)return res.status(400).send({ status: false, msg: "Please Enter Category" });
     if (typeof data.category !== "string")return res.status(400).send({ status: false, msg: "Please enter Category as a String" });
-
+    let validCategory =  /^\w[a-zA-Z0-9.]*$/
+    data.category = data.category.trim();
+    if (!validCategory.test(data.category)) return res.status(400).send({ status: false, msg: "The Category cannot be empty"})
+    // Checks if authorId is empty or contains valid authorId
     let authorId = req.body.authorId;
-
     if (!authorId) return res.status(400).send({ status: false, msg: "Enter Author Id" });
-
-    if (!mongoose.isValidObjectId(authorId))return res.status(400).send({ status: false, msg: "Please Enter authorId as a valid objectId" });
-
+    if(authorId.length !=24) return res.status(400).send({ status: false, msg: "Please Enter authorId as a valid objectId"});
+    // Checks whether authorId is present in author collection or not
     let checkAuthorId = await authormodel.findById(authorId);
-
     if (!checkAuthorId)
-      return res.status(404).send({ status: false, msg: "Entered author not found" });
-
+      return res.status(404).send({ status: false, msg: "Entered author not found"});
+    //If isPublished is true then adding timestamp
     if (data.isPublished) {
       if(typeof data.isPublished !== "boolean")return res.status(400).send({ status: false, msg: "Please mention isPublished as True or False" });
       if(data.isPublished== true){
@@ -61,18 +67,19 @@ const createBlogs = async function (req, res) {
 
 const getBlogs = async function (req, res) {
   try {
-    let conditions = req.query;    
+    let conditions = req.query;  
+    //Checks if category is entered as a string or not  
     if (conditions.category){
       if(typeof conditions.category !== 'string') return res.status(400).send({ status: false, msg: "Please enter Category as a String" });}
-
+    // Checks whether author id isa valid ObjectId
       if(conditions.authorId) {
-        if (!mongoose.isValidObjectId(conditions.authorId))return res.status(400).send({ status: false, msg: "Please Enter authorID as a valid ObjectId" })}
-
+        if ((conditions.authorId).length !=24)return res.status(400).send({ status: false, msg: "Please Enter authorID as a valid ObjectId" })}
+        // Fetching the blogs
     let blogs = await blogsmodel.find({
       $and: [conditions, { isDeleted: false }, { isPublished: true }],
     });
-    if (blogs.length == 0)
-      return res.status(404).send({ status: false, msg: "No Blogs found" });
+    if (blogs.length == 0)return res.status(404).send({ status: false, msg: "No Blogs found" });
+
     res.status(200).send({ status: true, data: blogs });
   } catch (error) {
     console.log(error);
@@ -90,19 +97,22 @@ const getBlogs = async function (req, res) {
 const putBlogs = async function (req, res) {
   try {
     let blogId = req.blogId;
-    if (!mongoose.isValidObjectId(blogId))return res.status(400).send({ status: false, msg: "Please enter blogID as a valid ObjectId" });
+    //Checks whetther BlogId is present and is a valid ObjectId
+    if(!blogId)return res.status(400).send({ status: false, msg: "Please enter BlogID" });
+    if (blogId.length !=24)return res.status(400).send({ status: false, msg: "Please enter blogID as a valid ObjectId"});
 
     let blog = await blogsmodel.findById(blogId);
     if (!blog) {
       return res.status(404).send({ status: false, msg: "Blog Not Found" });
     }
     let blogData = req.body;
-
+    //Checks whether title is a string or not 
     if (blogData.title){
       if(typeof blogData.title !== 'string') return res.status(400).send({ status: false, msg: " Please Enter Title as a String" });}
+      //Checks whether body is a string or not 
     if (blogData.body){
       if(typeof blogData.body !== 'string') return res.status(400).send({ status: false, msg: " Please enter body as a String" });}
-
+      //Updating the Blog
     let updatedBlog = await blogsmodel.findOneAndUpdate(
       { _id: blogId, isDeleted: false }, //Checks weather document is deleted or not { _id: blogId },
       {
@@ -130,10 +140,10 @@ const putBlogs = async function (req, res) {
 
 const deleteBlogs = async function (req, res) {
   try {
-
     let blogId = req.blogId;
-    if (!mongoose.isValidObjectId(blogId))return res.status(400).send({ status: false, msg: "Please enter blogID as a valid ObjectId" });
-    
+    //Checks whether BlogId is a valid ObjectId
+    if (blogId.length !=24)return res.status(400).send({ status: false, msg: "Please enter blogID as a valid ObjectId"});
+    //Deleting blog and adding timestamp
     let blog = await blogsmodel.findOneAndUpdate(
       { _id: blogId, isDeleted: false },
       { $set: { isDeleted: true, deletedAt: Date.now() } },
@@ -154,16 +164,17 @@ const deleteBlogs = async function (req, res) {
 // - If the blog document doesn't exist then return an HTTP status of 404 with a body
 
 const deleteBlogsByQuery = async function (req, res) {
-  try {
-    
+  try {    
     let conditions = req.query;
+    //Checks whether query params is empty or not
     if (Object.keys(conditions).length == 0)  return res.status(400).send({ status: false, msg: "Query Params cannot be empty" });
     let filters = {
       isDeleted:false
     }
-    filters.authorId= req.authorId
+    filters.authorId=req.authorId 
       if(conditions.authorId) {
-        if (!mongoose.isValidObjectId(conditions.authorId))return res.status(400).send({ status: false, msg: "Please Enter authorID as valid ObjectId" }); 
+        if ((conditions.authorId).length !=24) return res.status(400).send({ status: false, msg: "Please Enter authorID as valid ObjectId"});
+        if(conditions.authorId != req.authorId) return res.status(400).send({ status: false, msg: "Author is not authorized"}) 
         filters.authorId=conditions.authorId       
       }
       if(conditions.category) {
@@ -172,12 +183,12 @@ const deleteBlogsByQuery = async function (req, res) {
       }
       if(conditions.tags) filters.tags={$all:conditions.tags};
       if(conditions.subcategory) filters.subcategory={$all:conditions.subcategory};
-      if(conditions.isPublished) filters.isPublished=false; // add alidation for if isPublished true
+      if(conditions.isPublished) filters.isPublished=false;
 
     console.log(filters)
      
-    let deleteBlogs = await blogsmodel.updateMany(filters,{ $set: { isDeleted: true, deletedAt: Date.now()}});   
-    //let deleteBlogs= await blogsmodel.updateMany({$and:[{isDeleted:true}]},{$set:{isDeleted:false,isPublished:true}})
+    //let deleteBlogs = await blogsmodel.updateMany(filters,{ $set: { isDeleted: true, deletedAt: Date.now()}});   
+    let deleteBlogs= await blogsmodel.updateMany({$and:[{isDeleted:true}]},{$set:{isDeleted:false,isPublished:true}})
     console.log(deleteBlogs);
     if (deleteBlogs.matchedCount == 0) {
       return res.status(404).send({ status: false, msg: "Blog Not Found" });

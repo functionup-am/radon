@@ -9,13 +9,15 @@ const jwt =require('jsonwebtoken')
 const createauthor = async function (req, res) {                   
   try {
     let data = req.body;
+    // Checks whether body is empty or not
     if (Object.keys(data).length == 0)return res.status(400).send({ status: false, msg: "Body cannot be empty" });
+    // Checks whether first name is empty or is enter as a string or contains only letters
     if (!data.fname) return res.status(400).send({ status: false, msg: "Please enter First Name" });
     if(typeof data.fname !== 'string') return res.status(400).send({ status: false, msg: " Please enter first name as a String" });
     let validfname = /^\w[a-zA-Z.]*$/
       data.fname = data.fname.trim();
     if (!validfname.test(data.fname)) return res.status(400).send({ status: false, msg: "The fname may contain only letters"});
-   
+   // Checks whether last name is empty or is enter as a string or contains only letters
     if (!data.lname)return res.status(400).send({ status: false, msg: "Please enter Last Name" });
         if(typeof data.lname !== 'string') return res.status(400).send({ status: false, msg: "Please enter last name as a String" });
         let validlname =  /^\w[a-zA-Z.]*$/
@@ -23,27 +25,27 @@ const createauthor = async function (req, res) {
         if (!validlname.test(data.lname)) return res.status(400).send({ status: false, msg: "The lname may contain only letters"})
 
     // unique aa rha hai.(lname,fname)
+
+    // Checks whether title is empty or is enter as a string or contains the enumerator values or not
     if (!data.title) return res.status(400).send({ status: false, msg: " Please enter Title" });
         if(typeof data.title !== 'string') return res.status(400).send({ status: false, msg: "Please enter title as a String" });
-        // console.log(data.title)
         let titles=['Mr', 'Mrs', 'Miss'];
         data.title = data.title.trim();
         if(!(titles.includes(data.title)))return res.status(400).send({ status: false, msg: "Please enter title as Mr, Mrs or Miss only" });
-    
+    //// Checks whether password is empty or is enter as a string or a valid pasword
     if (!data.password) return res.status(400).send({ status: false, msg: "Please enter Password" });    
         if(typeof data.password !== 'string') return res.status(400).send({ status: false, msg: " Please enter password as a String" });
     let validPassword = /^(?=.*\d)(?=.*[!@#$%^&*])(?=.*[a-z])(?=.*[A-Z]).{8,20}$/;
     if (!validPassword.test(data.password)) return res.status(400).send({ status: false, msg: "Please enter min 8 letter password, with at least a symbol, upper and lower case letters and a number" });    
-        
+       // Checks whether email is empty or is enter as a string or is a valid email or already exists
     if (!data.email) return res.status(400).send({ status: false, msg: "Please enter E-mail" });
-        if(typeof data.email !== 'string') return res.status(400).send({ status: false, msg: "Please enter email as a String" });
-       
+      if(typeof data.email !== 'string') return res.status(400).send({ status: false, msg: "Please enter email as a String" });       
     let email = data.email;
     if (!validator.isEmail(email))
       return res.status(400).send({ status: false, msg: "Entered email is invalid" });
     let duplicateEmail = await authormodel.find({email: email});
-    console.log(duplicateEmail.length);
     if (duplicateEmail.length!==0) return res.status(400).send({status: false, msg: "Email already exist"});
+    // Creatting the author document in DB
     let save = await authormodel.create(data);     
     res.status(201).send({ status: true, data: save });      
   } catch (error) {
@@ -54,16 +56,23 @@ const createauthor = async function (req, res) {
 const loginAuthor= async function(req,res){
   try{
     let data = req.body
+    // Checks whether body is empty or not
+    if (Object.keys(data).length == 0)return res.status(400).send({ status: false, msg: "Body cannot be empty" });
+    // Checks whether email is entered or not
+    if (!data.email) return res.status(400).send({ status: false, msg: "Please enter E-mail"});
     let userEmail= data.email
+     // Checks whether password is entered or not
+    if (!data.password) return res.status(400).send({ status: false, msg: "Please enter Password" }); 
     let userPassword= data.password
-
+    //Checks if the email or password is correct
     let checkCred= await authormodel.findOne({email: userEmail,password:userPassword})
     if(!checkCred) return res.status(400).send({status:false, msg:"Email or password is incorrect"})
-
+    //Creating token if e-mail and password is correct
     let token= jwt.sign({
       authorId: checkCred._id.toString(),
       batch:"Radon"
     }, "project1-AADI");
+    //Setting token in response header
     res.setHeader("x-api-key",token)
     res.status(201).send({status:true,data: token})
   }catch (error) {
