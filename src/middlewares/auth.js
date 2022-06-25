@@ -28,11 +28,15 @@ const authorization = async function (req, res, next) {
     let token = req.headers["x-api-key"];
 
     let decodedToken = jwt.verify(token,"project1-AADI");
+    console.log(decodedToken)
 
     req.authorId = decodedToken.authorId; // assigning decoded token authorId value to authorId key in request
+    console.log(req.authorId)
 
     let blogId = req.params.blogId;
+    
     if(blogId){
+
     if (!mongoose.isValidObjectId(blogId))return res.status(400).send({ status: false, msg: "Please enter blogID as a valid ObjectId"});
 
       let findBlog = await blogsmodel.findById(blogId);
@@ -50,4 +54,4 @@ const authorization = async function (req, res, next) {
   }
 };
 
-module.exports = { authentication, authorization };
+module.exports = { authentication, authorization};

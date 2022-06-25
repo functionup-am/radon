@@ -34,7 +34,8 @@ const createBlogs = async function (req, res) {
 
 const getBlogs = async function (req, res) {
   try {
-    let conditions = req.query;  
+    let conditions = req.query; 
+    //console.log(conditions) 
     //Checks if category is entered as a string or not  
     if (conditions.category){
       if(typeof conditions.category !== 'string') return res.status(400).send({ status: false, msg: "Please enter Category as a String" });}
@@ -71,10 +72,10 @@ const putBlogs = async function (req, res) {
     //Checks whetther BlogId is present 
     //if(!blogId)return res.status(400).send({ status: false, msg: "Please enter BlogID" });
 
-    let blog = await blogsmodel.findById(blogId);
-    if (!blog) {
-      return res.status(404).send({ status: false, msg: "Blog Not Found" });
-    }
+    // let blog = await blogsmodel.findById(blogId);
+    // if (!blog) {
+    //   return res.status(404).send({ status: false, msg: "Blog Not Found" });
+    // }
     let blogData = req.body;
     //Updating the Blog
     let updatedBlog = await blogsmodel.findOneAndUpdate(
@@ -109,8 +110,7 @@ const deleteBlogs = async function (req, res) {
     //Deleting blog and adding timestamp
     let blog = await blogsmodel.findOneAndUpdate(
       { _id: blogId, isDeleted: false },
-      { $set: { isDeleted: true, deletedAt: Date.now() } },
-      { new: true }
+      { $set: { isDeleted: true, deletedAt: Date.now() } }
     );
     if (!blog) {
       return res.status(404).send({ status: false, msg: "Blog Not Found" });
@@ -137,7 +137,7 @@ const deleteBlogsByQuery = async function (req, res) {
     }
       if(conditions.authorId) {
      //if ((conditions.authorId).length !=24) return res.status(400).send({ status: false, msg: "Please Enter authorID as valid ObjectId"});
-        if(conditions.authorId != req.authorId) return res.status(400).send({ status: false, msg: "Author is not authorized to access this data"})      
+        if(conditions.authorId != req.authorId) return res.status(403).send({ status: false, msg: "Author is not authorized to access this data"})      
       }
       if(conditions.category) {
         if(typeof conditions.category !== 'string')return res.status(400).send({ status: false, msg: "Please Enter Category as a String" });
@@ -147,11 +147,11 @@ const deleteBlogsByQuery = async function (req, res) {
       if(conditions.subcategory) filters.subcategory={$all:conditions.subcategory};
       if(conditions.isPublished) filters.isPublished=false;
 
-    console.log(filters)
+    //console.log(filters)
      
     let deleteBlogs = await blogsmodel.updateMany(filters,{ $set: { isDeleted: true, deletedAt: Date.now()}});   
-    //let deleteBlogs= await blogsmodel.updateMany({$and:[{isDeleted:true}]},{$set:{isDeleted:false,isPublished:true}})
-    console.log(deleteBlogs);
+    //let deleteBlogs= await blogsmodel.updateMany({isDeleted:true},{$set:{isDeleted:false}})
+    //console.log(deleteBlogs);
     if (deleteBlogs.matchedCount == 0) {
       return res.status(404).send({ status: false, msg: "Blog Not Found" });
     }
@@ -161,5 +161,4 @@ const deleteBlogsByQuery = async function (req, res) {
     res.status(500).send({ status: false, msg: error.message });
   }
 };
-
 module.exports = {createBlogs, getBlogs, putBlogs, deleteBlogs, deleteBlogsByQuery}

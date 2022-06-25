@@ -18,7 +18,7 @@ const blogValidations = async function (req, res, next) {
         .status(400)
         .send({ status: false, msg: " Please enter title as a String" });
     data.title = data.title.trim();
-    let validTitle = /^\w[a-zA-Z0-9.]*$/;
+    let validTitle = /^\w[a-zA-Z0-9.]*$/; // can be only numbers also change this to both number and letters
     if (!validTitle.test(data.title))
       return res
         .status(400)
@@ -33,7 +33,7 @@ const blogValidations = async function (req, res, next) {
     if (typeof data.body !== "string")
       return res
         .status(400)
-        .send({ status: false, msg: " Please enter body as a String" });
+        .send({ status: false, msg: " Please enter body as a String " });
     data.body = data.body.trim();
     if (data.body.length <= 10)
       return res
