@@ -1,5 +1,4 @@
 const blogsmodel = require("../models/blogsModel");
-const authormodel = require("../models/authorModel");
 const mongoose = require("mongoose");
 
 // ### POST /blogs

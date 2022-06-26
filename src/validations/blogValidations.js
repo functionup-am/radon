@@ -18,13 +18,13 @@ const blogValidations = async function (req, res, next) {
         .status(400)
         .send({ status: false, msg: " Please enter title as a String" });
     data.title = data.title.trim();
-    let validTitle = /^\w[a-zA-Z0-9.]*$/; // can be only numbers also change this to both number and letters
+    let validTitle = /^\d*[a-zA-Z][a-zA-Z\d]*$/;
     if (!validTitle.test(data.title))
       return res
         .status(400)
         .send({
           status: false,
-          msg: "The Title may contain only letters and numbers",
+          msg: "The Title may contain letters and numbers, not only numbers",
         });
 
     // Checks if Body is empty or entered as a string

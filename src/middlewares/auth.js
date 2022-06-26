@@ -31,6 +31,7 @@ const authorization = async function (req, res, next) {
     console.log(decodedToken)
 
     req.authorId = decodedToken.authorId; // assigning decoded token authorId value to authorId key in request
+
     console.log(req.authorId)
 
     let blogId = req.params.blogId;
